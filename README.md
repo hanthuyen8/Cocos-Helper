@@ -19,7 +19,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ## Authors
 
-* **Nguyễn Hy Nhân** - *Initial work* - [PurpleBooth](https://github.com/hanthuyen8)
+* **Nguyễn Hy Nhân** - https://github.com/hanthuyen8
 
 ## License
 
