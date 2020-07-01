@@ -1,9 +1,10 @@
 # Cocos Helper Class
 
 Các Script hỗ trợ cho sử dụng Cocos Creator dễ dàng hơn.
-"Script có thể không phù hợp hoặc không tối ưu đủ cho các game từ mid đến large scale"
 
-## How To Use
+*Script có thể không phù hợp hoặc không đủ tối ưu cho các game từ mid đến large scale*
+
+## Cách sử dụng
 
 ### Chains
 
@@ -168,18 +169,20 @@ Chains.Stop("Test")
 
 ### AudioManager
 
-AudioManager được làm ra để giúp quá trình làm 1 game đơn giản trở nên nhanh và maintain hơn.
+AudioManager được làm ra để giúp quá trình làm 1 *game đơn giản* trở nên nhanh chóng và dễ maintain hơn.
 
-#### How To Use
+#### Cách sử dụng
 AudioManager là một cc.Component nên trước hết phải add nó vào Scene để sử dụng.
+
 Được phép có nhiều AudioManager trên cùng một Scene.
+
 **Nhưng hiện tại chưa tính đến việc load nhiều Scene cùng một lúc**.
 
 AudioManager quản lý các Audio theo một Id cho trước.
-Để sử dụng trong Script chỉ cần gọi AudioManager.play(Id) để phát Audio.
+
+Để sử dụng trong Script chỉ cần gọi **AudioManager.play(Id)** để phát Audio.
 
 #### 1. Static members:
-
 ```typescript
 - play()                    // Chơi một audio
 - stop()                    // Buộc dừng một audio
@@ -193,7 +196,6 @@ AudioManager quản lý các Audio theo một Id cho trước.
 ```
 
 #### 2. Instance members:
-
 ```typescript
 - play()
 - stop()
