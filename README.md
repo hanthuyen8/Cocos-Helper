@@ -1,13 +1,13 @@
 # Cocos Helper Class
 
 Các Script hỗ trợ cho sử dụng Cocos Creator dễ dàng hơn.
-"Script có thể không tối ưu cho các game lớn"
+"Script có thể không phù hợp hoặc không tối ưu đủ cho các game từ mid đến large scale"
 
 ## How To Use
 
 ### Chains
 
-Chains được tạo ra vì lý do cc.Tween của Cocos không hỗ trợ cho việc chain nhiều Tween của các node khác nhau một cách dễ dàng. Và thường thì nó sẽ tạo ra một callback hell với số lượng indent khủng khiếp.
+Chains được tạo ra vì lý do **cc.Tween** của Cocos không hỗ trợ cho việc chain nhiều Tween của các node khác nhau một cách dễ dàng. Và thường thì nó sẽ tạo ra một callback hell với số lượng indent khủng khiếp.
 
 Về bản chất Chains vẫn tạo ra callback hell, nhưng nó được giấu bên dưới các function, function này chạy xong sẽ tự gọi đến function khác. Nhưng ưu điểm là cú pháp dễ nhìn hơn rất nhiều.
 
@@ -15,7 +15,8 @@ Ban đầu, tôi có nghĩ đến việc sử dụng Promise. Nhưng Promise cũ
 1. Promise gây khó hiểu cho reader
 2. Promise hell
 3. Không thể cancel
-Vậy nên tôi nghĩ ra việc làm ra một class như thế này.
+
+Vậy nên tôi đã nghĩ đến việc làm ra một class như thế này ngay từ khi bắt đầu tìm hiểu về Cocos. Một phần cũng vì thích kiểu tiện dụng của Coroutine ở Unity
 
 #### Class Chains gồm có các public member *(cơ bản)* sau đây:
 
@@ -55,9 +56,12 @@ Vậy nên tôi nghĩ ra việc làm ra một class như thế này.
 - addNotWaitChainFunction()
 ```
 
-ChainFunction là một class chứa các hiệu ứng để class Chains sử dụng.
+**ChainFunction** là một class chứa các hiệu ứng để class Chains sử dụng.
 Các hàm này sẽ chèn vào các ChainFunction nối tiếp nhau (như một queue, ChainFunction này chạy xong sẽ gọi đến ChainFunction tiếp theo).
+
 *Thời điểm mà mỗi ChainFunction hoàn thành sẽ tùy thuộc vào thời điểm khi nào hàm done() được gọi đến. Có nghĩa rằng mỗi khi gọi đến hàm done() thì một ChainFunction tiếp theo sẽ được gọi.*
+
+**Vậy nên, bug sẽ xuất hiện nếu done() được gọi nhiều hơn một lần trong một ChainFunction. Hoặc done() không bao giờ được gọi tới.**
 
 Về mặc định, ChainFunction này sẽ gọi đến ChainFunction tiếp theo mỗi khi các function bên trong của nó đã kết thúc hoàn toàn.
 **Trừ 2 hàm :**
@@ -68,8 +72,37 @@ Về mặc định, ChainFunction này sẽ gọi đến ChainFunction tiếp th
 
 Hai hàm này sẽ gọi đến ChainFunction liền sau ngay lập tức. Mục đích để tạo ra cảm giác hiệu ứng diễn ra đồng thời (xem như là 1 dạng chạy song song một cách tương đối).
 
-#### 3. Ví dụ:
+#### 3. Ví dụ (không chú thích - chú thích ở mục 4):
+```typescript
+const chain = new Chains("Test");
 
+chain
+    .addFadeIn(this.welcomeText, 0.5)
+    .addPlayAudio("Welcome");
+
+    for (let item of this.items1)
+    {
+        chain
+            .addFadeIn(item, 0.5)
+            .addPlayAudio(item.audio);
+    }
+
+    for (let item of this.items2)
+    {
+        chain.addNotWaitChainFunction(
+            ChainFunction.fadeIn(item, 0.5),
+            ChainFunction.bouncing(item, 1.5, 0, 0.5)
+        );
+    }
+
+    chain
+        .addWait(0.5)
+        .addCustomFunction(() => cc.log("Hello again!"))
+
+        .start(()=> cc.log("Completed"));
+```
+
+#### 4. Chú thích ví dụ trên:
 ```typescript
 // Khởi tạo 1 Chains với Id: Test
 // Nếu bị trùng Id thì Chains có Id bị trùng sẽ bị stop.
