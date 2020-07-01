@@ -7,24 +7,39 @@ Các Script hỗ trợ cho sử dụng Cocos Creator dễ dàng hơn.
 
 ### Chains
 
-Class Chains gồm có các public member *(cơ bản)* sau đây:
+Chains được tạo ra vì lý do cc.Tween của Cocos không hỗ trợ cho việc chain nhiều Tween của các node khác nhau một cách dễ dàng. Và thường thì nó sẽ tạo ra một callback hell với số lượng indent khủng khiếp.
+
+Về bản chất Chains vẫn tạo ra callback hell, nhưng nó được giấu bên dưới các function, function này chạy xong sẽ tự gọi đến function khác. Nhưng ưu điểm là cú pháp dễ nhìn hơn rất nhiều.
+
+Ban đầu, tôi có nghĩ đến việc sử dụng Promise. Nhưng Promise cũng có nhược điểm:
+1. Promise gây khó hiểu cho reader
+2. Promise hell
+3. Không thể cancel
+Vậy nên tôi nghĩ ra việc làm ra một class như thế này.
+
+#### Class Chains gồm có các public member *(cơ bản)* sau đây:
 
 #### 1. Static members:
 
+```typescript
 - Chains.Stop(id : string, forceComplete : boolean);
 - Chains.StopAll();
 - Chains.IsThisChainFinished(id : string);
+```
 
 #### 2. Instance members:
 
 **Các hàm điều khiển:**
 
+```typescript
 - done();
 - start(onComplete: Function);
 - stop(forceComplete : boolean);
+```
 
 **Các hàm hiệu ứng:**
 
+```typescript
 - addChainFunction()
 - addCustomFunction()
 - addTween()
@@ -38,15 +53,20 @@ Class Chains gồm có các public member *(cơ bản)* sau đây:
 - addWait()
 - addNotWaitCustomFunction()
 - addNotWaitChainFunction()
+```
 
-Các hàm này sẽ chèn vào các function nối tiếp nhau (như một queue, function này chạy xong sẽ gọi đến function liền sau của nó). Thời điểm mà mỗi function hoàn thành sẽ tùy thuộc vào thời điểm khi nào hàm done() được gọi đến. Có nghĩa rằng mỗi khi gọi đến hàm done() thì một function tiếp theo sẽ được gọi.
+ChainFunction là một class chứa các hiệu ứng để class Chains sử dụng.
+Các hàm này sẽ chèn vào các ChainFunction nối tiếp nhau (như một queue, ChainFunction này chạy xong sẽ gọi đến ChainFunction tiếp theo).
+*Thời điểm mà mỗi ChainFunction hoàn thành sẽ tùy thuộc vào thời điểm khi nào hàm done() được gọi đến. Có nghĩa rằng mỗi khi gọi đến hàm done() thì một ChainFunction tiếp theo sẽ được gọi.*
 
-Về mặc định, các hàm hiệu ứng nêu trên sẽ gọi đến hàm done() mỗi khi hiệu ứng tween đã kết thúc hoàn toàn.
-Trừ 2 hàm :
+Về mặc định, ChainFunction này sẽ gọi đến ChainFunction tiếp theo mỗi khi các function bên trong của nó đã kết thúc hoàn toàn.
+**Trừ 2 hàm :**
+```typescript
 1. addNotWaitCustomFunction()
 2. addNotWaitChainFunction()
+```
 
-Hai hàm này sẽ gọi đến done() ngay lập tức. Mục đích để sử dụng cho các hiệu ứng diễn ra đồng thời (xem như là 1 dạng chạy song song tương đối).
+Hai hàm này sẽ gọi đến ChainFunction liền sau ngay lập tức. Mục đích để tạo ra cảm giác hiệu ứng diễn ra đồng thời (xem như là 1 dạng chạy song song một cách tương đối).
 
 #### 3. Ví dụ:
 
@@ -83,8 +103,10 @@ chain
         chain.addNotWaitChainFunction(
 
             // Vẫn là hiệu ứng Fade In trong vòng 0.5 giây
-            // ChainFunction là class chứa các hàm hiệu ứng của class Chains
-            ChainFunction.fadeIn(item, 0.5)
+            ChainFunction.fadeIn(item, 0.5),
+
+            // Scale node lên x1.5 lần, lặp lại 0 lần, trong vòng 0.5 giây
+            ChainFunction.bouncing(item, 1.5, 0, 0.5)
         );
     }
 
@@ -125,6 +147,7 @@ AudioManager quản lý các Audio theo một Id cho trước.
 
 #### 1. Static members:
 
+```typescript
 - play()                    // Chơi một audio
 - stop()                    // Buộc dừng một audio
 - stopAllEffects()          // Dừng tất cả audio (không dừng background music)
@@ -134,13 +157,16 @@ AudioManager quản lý các Audio theo một Id cho trước.
 - getDuration()             // Lấy ra thời lượng của audio
 - resumeBackgroundMusic()   // Play background music
 - pauseBackgroundMusic()    // Tạm dừng background music
+```
 
 #### 2. Instance members:
 
+```typescript
 - play()
 - stop()
-- getTimeRemaining()        
-- getDuration()             
+- getTimeRemaining()
+- getDuration()
+```
 
 ## Use With
 
